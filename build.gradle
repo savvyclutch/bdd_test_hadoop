@@ -1,0 +1,106 @@
+buildscript {
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    classpath 'de.undercouch:gradle-download-task:2.0.0'
+    classpath 'org.apache.hadoop:hadoop-common:2.6.0'
+  }
+}
+
+
+apply plugin: 'java'
+apply plugin: 'de.undercouch.download'
+apply plugin: 'maven'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+ext.cascadingVersion = '3.1.0'
+ext.hadoop2Version = '2.6.0'
+ext.hiveVersion = '1.0.0'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven{ url 'http://conjars.org/repo/' }
+}
+
+configurations {
+    providedCompile
+
+    cucumberRuntime {
+        exclude group: 'commons-httpclient'
+        extendsFrom testRuntime
+    }
+}
+
+sourceSets {
+    main {
+        compileClasspath += configurations.providedCompile
+    }
+
+    test {
+        output.resourcesDir = 'build/classes/test/resources'
+        output.classesDir   = 'build/classes/test/java'
+    }
+}
+
+dependencies {
+    // install cascading
+    compile( group: 'cascading', name: 'cascading-core', version: cascadingVersion )
+    compile( group: 'cascading', name: 'cascading-local', version: cascadingVersion )
+    compile( group: 'cascading', name: 'cascading-hadoop2-mr1', version: cascadingVersion )
+    compile( group: 'cascading', name: 'cascading-hadoop2-tez', version: cascadingVersion )
+
+    compile( group: 'com.hotels', name: 'corc-cascading', version: '1.0.0' )
+
+    // install hadoop
+    providedCompile( group: 'org.apache.hadoop', name: 'hadoop-common', version: hadoop2Version )
+    providedCompile( group: 'org.apache.hadoop', name: 'hadoop-client', version: hadoop2Version )
+    providedCompile( group: 'org.apache.hadoop', name: 'hadoop-mapreduce-client-core', version: hadoop2Version )
+
+    compile( group: 'org.apache.hive', name: 'hive-exec', version: hiveVersion )
+    compile( group: 'org.apache.hive', name: 'hive-serde', version: hiveVersion )
+
+    cucumberRuntime files("${jar.archivePath}")
+    testCompile( group: 'org.apache.hadoop', name: 'hadoop-common', version: hadoop2Version )
+    testCompile( group: 'org.apache.hadoop', name: 'hadoop-client', version: hadoop2Version )
+    testCompile( group: 'org.apache.hadoop', name: 'hadoop-mapreduce-client-core', version: hadoop2Version )
+
+    // install cucumber
+    testCompile( group: 'info.cukes', name: 'cucumber-java', version: '1.2.4' )
+    testCompile( group: 'info.cukes', name: 'cucumber-junit', version: '1.2.4' )
+    testCompile( group: 'info.cukes', name: 'cucumber-picocontainer', version: '1.2.4' )
+
+    // install chunk templates for test data generation
+    testCompile( group: 'com.x5dev', name: 'chunk-templates', version: '3.1.0' )
+}
+
+
+task cucumber() {
+    dependsOn assemble, compileTestJava, processTestResources
+    doLast {
+        javaexec {
+            main = "cucumber.api.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.test.runtimeClasspath
+            args = ["--plugin", "pretty",  "--tags", "~@ignore", "--glue", "com.steps", "src/test/resources"]
+        }
+    }
+}
+
+
+jar {
+    description = "Assembles a Hadoop ready jar file"
+    doFirst {
+        into( 'lib' ) {
+            from configurations.compile
+        }
+    }
+
+    manifest {
+
+    }
+}
+

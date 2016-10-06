@@ -1,0 +1,7 @@
+{#lines}
+{% loop in $lines as $line_parameters%}{% include #single_line_snippet %}{% endloop %}
+{#}
+
+{#single_line_snippet}
+{$line_parameters.id:0000},{$line_parameters.country:UA},{$line_parameters.time:1433998201},{$line_parameters.duration:60000}
+{#}
