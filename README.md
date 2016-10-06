@@ -6,4 +6,4 @@ Build container:
 
 Run container:
 
-> docker run -v ~/projects/savvyclutch/articles/bdd_test_hadoop/:/opt/bdd_test_hadoop dbb_test_hadoop
+> docker run -v `pwd`:/opt/bdd_test_hadoop dbb_test_hadoop
