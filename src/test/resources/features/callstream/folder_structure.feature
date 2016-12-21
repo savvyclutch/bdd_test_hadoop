@@ -1,6 +1,6 @@
 Feature: CallStream normal data folder structure
   Check is CallStream job creates the correct file/directory structure
-  for the collected callstreamstream data
+  for the collected callstream data
 
   Scenario: processing data from one user from UA
     Given a file with theme calls_log containing the following lines
