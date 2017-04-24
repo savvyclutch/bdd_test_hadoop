@@ -1,4 +1,4 @@
-This is source code for `BDD tests for Hadoop with Cucumber` articles
+This is source code for [BDD tests for Hadoop with Cucumber](http://www.savvyclutch.com/qa/BDD-tests-for-Hadoop-with-Cucumber-part-I/) articles
 
 Build container:
 
